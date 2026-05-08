@@ -266,6 +266,12 @@ Full provocations: [`BONUS-CHALLENGE.md`](BONUS-CHALLENGE.md) (tiếng Việt) �
 
 ---
 
+## HuggingFace Model (Submission Option B)
+
+- **DPO Adapter:** https://huggingface.co/huuhung1962001/lab22-dpo-vn
+
+---
+
 ## Acknowledgments
 
 - **Slide deck:** [`day22/day07-dpo-orpo-alignment-tu-sft-en-preference-learning.tex`](../day07-dpo-orpo-alignment-tu-sft-en-preference-learning.tex)
