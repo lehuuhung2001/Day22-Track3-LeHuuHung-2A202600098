@@ -141,7 +141,8 @@ dpo_config = DPOConfig(
     fp16=not torch.cuda.is_bf16_supported(),
     seed=42,
     loss_type="sigmoid",         # DPO standard (alternatives: ipo, hinge, kto)
-    report_to="none",
+    report_to="wandb" if os.environ.get("WANDB_API_KEY") else "none",
+    run_name=f"lab22-dpo-b{BETA}-lr{LR}" if os.environ.get("WANDB_API_KEY") else None,
 )
 
 print(f"DPOConfig: beta={dpo_config.beta}  lr={dpo_config.learning_rate}  loss_type={dpo_config.loss_type}")
@@ -191,7 +192,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 logs = pd.DataFrame(trainer.state.log_history)
-logs = logs[logs["loss"].notna() if "loss" in logs.columns else logs.index].copy()
+if "loss" in logs.columns:
+    logs = logs[logs["loss"].notna()].copy()
 
 # TRL DPO logs include rewards/chosen, rewards/rejected, rewards/margins, kl
 chosen_col = "rewards/chosen" if "rewards/chosen" in logs.columns else None
@@ -235,6 +237,9 @@ plt.show()
 # Read this cell carefully — it tells you which kind of "reward gap up" you got.
 
 # %%
+last_chosen = last_rejected = last_gap = float("nan")
+first_chosen = chosen_delta = float("nan")
+
 if chosen_col and rejected_col and len(logs) >= 5:
     last_chosen = logs[chosen_col].iloc[-5:].mean()
     last_rejected = logs[rejected_col].iloc[-5:].mean()

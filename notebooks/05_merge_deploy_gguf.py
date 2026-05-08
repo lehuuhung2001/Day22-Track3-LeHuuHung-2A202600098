@@ -65,10 +65,13 @@ model, tokenizer = FastLanguageModel.from_pretrained(
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-# Stack SFT-mini → DPO adapters
+# Stack SFT-mini → DPO adapters (both must be loaded before merging)
 SFT_PATH = REPO_ROOT / "adapters" / "sft-mini"
 model = PeftModel.from_pretrained(model, str(SFT_PATH))
 print(f"Loaded SFT-mini adapter from {SFT_PATH}")
+
+model = PeftModel.from_pretrained(model, str(DPO_PATH))
+print(f"Loaded DPO adapter (stacked on SFT) from {DPO_PATH}")
 
 # %% [markdown]
 # > **Note:** The DPO adapter trained in NB3 stacks on top of SFT. To get a fully
@@ -131,11 +134,9 @@ print(f"Saved GGUF Q4_K_M to {GGUF_DIR}")
 # ### 3a. Optional — additional quantization tiers (for the +3 rigor add-on)
 
 # %%
-# Uncomment if you want Q5_K_M + Q8_0 too (~2× total disk space).
-# Each adds ~30s for an extra GGUF file.
-#
-# model.save_pretrained_gguf(str(GGUF_DIR), tokenizer, quantization_method="q5_k_m")
-# model.save_pretrained_gguf(str(GGUF_DIR), tokenizer, quantization_method="q8_0")
+# Q5_K_M for the +3 "GGUF release published" rigor add-on.
+model.save_pretrained_gguf(str(GGUF_DIR), tokenizer, quantization_method="q5_k_m")
+# model.save_pretrained_gguf(str(GGUF_DIR), tokenizer, quantization_method="q8_0")  # optional Q8
 
 # %%
 import os
